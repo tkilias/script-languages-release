@@ -7,4 +7,10 @@ WRAPPER_TEMPLATE=$3
 touch "$CLIENT_WRAPPER"
 cat "$WRAPPER_TEMPLATE" >> "$CLIENT_WRAPPER"
 echo >> "$CLIENT_WRAPPER"
-echo ./$(basename "$CLIENT_BINARY") '$*' >>  "$CLIENT_WRAPPER"
+echo 'NAME="$1"' >> "$CLIENT_WRAPPER"
+echo 'MASSIF_FILE="/tmp/$(echo $NAME | sed s#[/:]##g)"' >> "$CLIENT_WRAPPER"
+echo valgrind --tool=massif --massif-out-file '$MASSIF_FILE' ./$(basename "$CLIENT_BINARY") '$*' >>  "$CLIENT_WRAPPER"
+echo 'UPLOAD="curl -X PUT -T $MASSIF_FILE http://w:writepw@localhost:6583/default/$MASSIF_FILE"' >>  "$CLIENT_WRAPPER"
+echo 'echo $UPLOAD' >>  "$CLIENT_WRAPPER"
+echo '$UPLOAD' >>  "$CLIENT_WRAPPER"
+
